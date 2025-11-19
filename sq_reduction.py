@@ -6,9 +6,17 @@ import random
 
 SQ_PATH = "/project/web-classes/Fall-2025/csci5471/hw4/sq"
 
+def der_to_int(der):
+    # DER INTEGER: 0x02 | length | value
+    if der[0] != 0x02:
+        raise ValueError("Not a DER INTEGER")
+    length = der[1]
+    val = der[2:2+length]
+    return int.from_bytes(val, "big")
+
 def read_modulus():
     out = subprocess.check_output([SQ_PATH, "modulus"])
-    return int(out.strip(), 16)
+    return der_to_int(out)
 
 def der_encode(x):
     b = x.to_bytes((x.bit_length() + 7) // 8, "big")
@@ -18,7 +26,7 @@ def der_encode(x):
 
 def run_sqrt(a_bytes):
     out = subprocess.check_output([SQ_PATH, "sqrt"], input=a_bytes)
-    return int(out.strip(), 16)
+    return der_to_int(out)
 
 def trial(n):
     x = random.randrange(2, n - 1)
